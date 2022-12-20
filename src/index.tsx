@@ -59,7 +59,6 @@ export function NostrProvider({
           onConnectCallback(url, sendEvent);
         }
       },
-      // onEvent: (_relayUrl, event) => setLastEvent(event),
       onEvent: (relayUrl, event) => {
         if (onEventCallback) {
           onEventCallback(relayUrl, event);
