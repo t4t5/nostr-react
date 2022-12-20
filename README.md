@@ -1,6 +1,9 @@
-# @nostrgg/react
-
-React Hooks for Nostr
+<p align="center">
+<img width="623" alt="nostrgg-react" src="https://user-images.githubusercontent.com/2598660/208627685-485c08ef-e154-431b-82bc-fb6ae9bc0e25.png">
+</p>
+<p align="center">
+React Hooks for Nostr ✨
+</p>
 
 ## Installation
 
