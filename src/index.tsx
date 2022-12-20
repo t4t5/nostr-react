@@ -7,7 +7,7 @@ import {
   useRef,
 } from 'react';
 
-import { uniqBy } from 'lodash';
+import { uniqBy } from './utils';
 
 import {
   OnConnectFunc,
