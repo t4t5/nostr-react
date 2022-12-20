@@ -22,7 +22,7 @@ const relayUrls = [
 
 function MyApp() {
   return (
-    <NostrProvider relayUrls={relayUrls}>
+    <NostrProvider relayUrls={relayUrls} debug>
       <App />
     </NostrProvider>
   );

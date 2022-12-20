@@ -54,7 +54,7 @@ export function NostrProvider({
   useEffect(() => {
     const { sendEvent: _sendEvent } = initNostr({
       relayUrls,
-      onConnect: (url: string, sendEvent) => {
+      onConnect: (url, sendEvent) => {
         setIsLoading(false)
 
         if (onConnectCallback) {
