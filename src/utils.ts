@@ -5,7 +5,7 @@ export const uniqBy = <T>(arr: T[], key: keyof T): T[] => {
         ...map,
         [`${item[key]}`]: item,
       }),
-      {}
-    )
-  );
-};
+      {},
+    ),
+  )
+}

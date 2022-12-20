@@ -1,13 +1,13 @@
-import {
+import React, {
   createContext,
   ReactNode,
   useContext,
   useEffect,
   useState,
   useRef,
-} from 'react';
+} from "react"
 
-import { uniqBy } from './utils';
+import { uniqBy } from "./utils"
 
 import {
   OnConnectFunc,
@@ -18,100 +18,98 @@ import {
   NostrEvent,
   SendMsgType,
   SendEvent,
-} from '@nostrgg/client';
+} from "@nostrgg/client"
 
-export * from '@nostrgg/client';
+export * from "@nostrgg/client"
 
 interface NostrContextType {
-  isLoading: boolean;
-  onConnect: (_onConnectCallback?: OnConnectFunc) => void;
-  onEvent: (_onEventCallback?: OnEventFunc) => void;
-  sendEvent?: (event: SendEvent) => void;
+  isLoading: boolean
+  onConnect: (_onConnectCallback?: OnConnectFunc) => void
+  onEvent: (_onEventCallback?: OnEventFunc) => void
+  sendEvent?: (event: SendEvent) => void
 }
 
 const NostrContext = createContext<NostrContextType>({
   isLoading: true,
   onConnect: () => null,
   onEvent: () => null,
-});
+})
 
 export function NostrProvider({
   children,
   relayUrls,
   debug,
 }: {
-  children: ReactNode;
-  relayUrls: string[];
-  debug?: boolean;
+  children: ReactNode
+  relayUrls: string[]
+  debug?: boolean
 }) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true)
 
-  let onConnectCallback: null | OnConnectFunc = null;
-  let onEventCallback: null | OnEventFunc = null;
+  let onConnectCallback: null | OnConnectFunc = null
+  let onEventCallback: null | OnEventFunc = null
 
-  const sendEventRef = useRef<SendEventFunc>();
+  const sendEventRef = useRef<SendEventFunc>()
 
   useEffect(() => {
     const { sendEvent: _sendEvent } = initNostr({
       relayUrls,
       onConnect: (url: string, sendEvent) => {
-        setIsLoading(false);
+        setIsLoading(false)
 
         if (onConnectCallback) {
-          onConnectCallback(url, sendEvent);
+          onConnectCallback(url, sendEvent)
         }
       },
       onEvent: (relayUrl, event) => {
         if (onEventCallback) {
-          onEventCallback(relayUrl, event);
+          onEventCallback(relayUrl, event)
         }
       },
       debug,
-    });
+    })
 
-    sendEventRef.current = _sendEvent;
-  }, [onConnectCallback, onEventCallback, relayUrls]);
+    sendEventRef.current = _sendEvent
+  }, [onConnectCallback, onEventCallback, relayUrls])
 
   const value: NostrContextType = {
     isLoading,
     sendEvent: sendEventRef.current,
     onConnect: (_onConnectCallback?: OnConnectFunc) => {
       if (_onConnectCallback) {
-        onConnectCallback = _onConnectCallback;
+        onConnectCallback = _onConnectCallback
       }
     },
     onEvent: (_onEventCallback?: OnEventFunc) => {
       if (_onEventCallback) {
-        onEventCallback = _onEventCallback;
+        onEventCallback = _onEventCallback
       }
     },
-  };
+  }
 
-  return (
-    <NostrContext.Provider value={value}>{children}</NostrContext.Provider>
-  );
+  return <NostrContext.Provider value={value}>{children}</NostrContext.Provider>
 }
 
 export function useNostr() {
-  return useContext(NostrContext);
+  return useContext(NostrContext)
 }
 
 export function useNostrEvents({ filter }: { filter: Filter }) {
-  const { isLoading, sendEvent, onConnect, onEvent } = useNostr();
-  const [events, setEvents] = useState<NostrEvent[]>([]);
+  const { isLoading, sendEvent, onConnect, onEvent } = useNostr()
+  const [events, setEvents] = useState<NostrEvent[]>([])
 
   onConnect((url, _sendEvent) => {
-    _sendEvent([SendMsgType.REQ, filter], url);
-  });
+    _sendEvent([SendMsgType.REQ, filter], url)
+  })
 
   onEvent((_relayUrl, event) => {
-    setEvents(_events => {
-      return [event, ..._events];
-    });
-  });
+    setEvents((_events) => {
+      return [event, ..._events]
+    })
+  })
 
-  const uniqEvents = events.length > 0 ? uniqBy(events, 'id') : [];
-  const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at);
+  const uniqEvents = events.length > 0 ? uniqBy(events, "id") : []
+  const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
 
   return {
     isLoading,
@@ -119,5 +117,5 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     onConnect,
     onEvent,
     sendEvent,
-  };
+  }
 }
