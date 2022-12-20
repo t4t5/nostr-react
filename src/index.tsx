@@ -20,6 +20,8 @@ import {
   SendEvent,
 } from '@nostrgg/client';
 
+export * from '@nostrgg/client';
+
 interface NostrContextType {
   isLoading: boolean;
   onConnect: (_onConnectCallback?: OnConnectFunc) => void;
