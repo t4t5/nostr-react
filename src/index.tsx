@@ -38,9 +38,11 @@ const NostrContext = createContext<NostrContextType>({
 export function NostrProvider({
   children,
   relayUrls,
+  debug,
 }: {
   children: ReactNode;
   relayUrls: string[];
+  debug?: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,7 +66,7 @@ export function NostrProvider({
           onEventCallback(relayUrl, event);
         }
       },
-      debug: true,
+      debug,
     });
 
     sendEventRef.current = _sendEvent;
