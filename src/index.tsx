@@ -12,6 +12,7 @@ import { uniqBy } from "./utils"
 export { dateToUnix } from "./utils"
 
 type OnConnectFunc = (relay: Relay) => void
+type OnEventFunc = (event: NostrEvent) => void
 
 interface NostrContextType {
   isLoading: boolean
@@ -105,11 +106,14 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   const { isLoading, onConnect, debug, connectedRelays } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
 
+  let onEventCallback: null | OnEventFunc = null
+
   onConnect((relay: Relay) => {
     const sub = relay.sub([filter], {})
 
     sub.on("event", (event: NostrEvent) => {
       log(debug, "info", "⬇️ nostr: Received event:", event)
+      onEventCallback?.(event)
       setEvents((_events) => {
         return [event, ..._events]
       })
@@ -124,5 +128,10 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     events: sortedEvents,
     onConnect,
     connectedRelays,
+    onEvent: (_onEventCallback: OnEventFunc) => {
+      if (_onEventCallback) {
+        onEventCallback = _onEventCallback
+      }
+    },
   }
 }
