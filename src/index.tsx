@@ -14,6 +14,7 @@ type OnConnectFunc = (relay: Relay) => void
 
 interface NostrContextType {
   isLoading: boolean
+  debug?: boolean
   onConnect: (_onConnectCallback?: OnConnectFunc) => void
 }
 
@@ -21,6 +22,15 @@ const NostrContext = createContext<NostrContextType>({
   isLoading: true,
   onConnect: () => null,
 })
+
+const log = (
+  isOn: boolean | undefined,
+  type: "info" | "error" | "warn",
+  ...args: unknown[]
+) => {
+  if (!isOn) return
+  console[type](...args)
+}
 
 export function NostrProvider({
   children,
@@ -41,18 +51,21 @@ export function NostrProvider({
       relay.connect()
 
       relay.on("connect", () => {
+        log(debug, "info", `✅ nostrgg: Connected to ${relayUrl}`)
         setIsLoading(false)
         onConnectCallback?.(relay)
       })
 
       // Wait for this to be merged: https://github.com/fiatjaf/nostr-tools/pull/69
       // relay.on("error", () => {
+      //   log(debug, "error", `❌ nostrgg: Error connecting to ${relayUrl}!`)
       //   console.log(`Error connecting to ${relay.url}`)
       // })
     })
   }, [onConnectCallback, relayUrls])
 
   const value: NostrContextType = {
+    debug,
     isLoading,
     onConnect: (_onConnectCallback?: OnConnectFunc) => {
       if (_onConnectCallback) {
@@ -69,13 +82,14 @@ export function useNostr() {
 }
 
 export function useNostrEvents({ filter }: { filter: Filter }) {
-  const { isLoading, onConnect } = useNostr()
+  const { isLoading, onConnect, debug } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
 
   onConnect((relay: Relay) => {
     const sub = relay.sub([filter], {})
 
     sub.on("event", (event: NostrEvent) => {
+      log(debug, "info", "⬇️ nostrgg: Received event:", event)
       setEvents((_events) => {
         return [event, ..._events]
       })
