@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <p align="center">
 <b>react-nostr</b>
 </p>
