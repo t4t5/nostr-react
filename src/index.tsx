@@ -51,14 +51,14 @@ export function NostrProvider({
       relay.connect()
 
       relay.on("connect", () => {
-        log(debug, "info", `✅ nostrgg: Connected to ${relayUrl}`)
+        log(debug, "info", `✅ nostr: Connected to ${relayUrl}`)
         setIsLoading(false)
         onConnectCallback?.(relay)
       })
 
       // Wait for this to be merged: https://github.com/fiatjaf/nostr-tools/pull/69
       // relay.on("error", () => {
-      //   log(debug, "error", `❌ nostrgg: Error connecting to ${relayUrl}!`)
+      //   log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
       //   console.log(`Error connecting to ${relay.url}`)
       // })
     })
@@ -89,7 +89,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     const sub = relay.sub([filter], {})
 
     sub.on("event", (event: NostrEvent) => {
-      log(debug, "info", "⬇️ nostrgg: Received event:", event)
+      log(debug, "info", "⬇️ nostr: Received event:", event)
       setEvents((_events) => {
         return [event, ..._events]
       })
