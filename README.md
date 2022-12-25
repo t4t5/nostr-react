@@ -86,7 +86,7 @@ const ProfileFeed = () => {
 **Post a message:**
 
 ```tsx
-import { useNostrEvents } from "nostr-react";
+import { useNostr } from "nostr-react";
 
 import {
   type Event as NostrEvent,
