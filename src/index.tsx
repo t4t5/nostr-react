@@ -51,6 +51,8 @@ export function NostrProvider({
   const [connectedRelays, setConnectedRelays] = useState<Relay[]>([])
 
   const publish = (event: NostrEvent) => {
+    log(debug, "info", "⬆️ nostr: Sending event:", event)
+
     return connectedRelays.map((relay) => {
       return relay.publish(event)
     })
@@ -109,6 +111,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   let onEventCallback: null | OnEventFunc = null
 
   onConnect((relay: Relay) => {
+    log(debug, "info", "⬆️ nostr: Sending event filter:", filter)
     const sub = relay.sub([filter], {})
 
     sub.on("event", (event: NostrEvent) => {
