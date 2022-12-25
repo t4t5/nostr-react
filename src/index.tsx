@@ -1,38 +1,25 @@
-import React, {
+import {
   createContext,
   ReactNode,
   useContext,
   useEffect,
   useState,
-  useRef,
 } from "react"
+
+import { Relay, Filter, Event as NostrEvent, relayInit } from "nostr-tools"
 
 import { uniqBy } from "./utils"
 
-import {
-  OnConnectFunc,
-  initNostr,
-  OnEventFunc,
-  SendEventFunc,
-  Filter,
-  NostrEvent,
-  SendMsgType,
-  SendEvent,
-} from "@nostrgg/client"
-
-export * from "@nostrgg/client"
+type OnConnectFunc = (relay: Relay) => void
 
 interface NostrContextType {
   isLoading: boolean
   onConnect: (_onConnectCallback?: OnConnectFunc) => void
-  onEvent: (_onEventCallback?: OnEventFunc) => void
-  sendEvent?: (event: SendEvent) => void
 }
 
 const NostrContext = createContext<NostrContextType>({
   isLoading: true,
   onConnect: () => null,
-  onEvent: () => null,
 })
 
 export function NostrProvider({
@@ -47,42 +34,29 @@ export function NostrProvider({
   const [isLoading, setIsLoading] = useState(true)
 
   let onConnectCallback: null | OnConnectFunc = null
-  let onEventCallback: null | OnEventFunc = null
-
-  const sendEventRef = useRef<SendEventFunc>()
 
   useEffect(() => {
-    const { sendEvent: _sendEvent } = initNostr({
-      relayUrls,
-      onConnect: (url, sendEvent) => {
+    relayUrls.forEach(async (relayUrl) => {
+      const relay = relayInit(relayUrl)
+      relay.connect()
+
+      relay.on("connect", () => {
         setIsLoading(false)
+        onConnectCallback?.(relay)
+      })
 
-        if (onConnectCallback) {
-          onConnectCallback(url, sendEvent)
-        }
-      },
-      onEvent: (relayUrl, event) => {
-        if (onEventCallback) {
-          onEventCallback(relayUrl, event)
-        }
-      },
-      debug,
+      // Wait for this to be merged: https://github.com/fiatjaf/nostr-tools/pull/69
+      // relay.on("error", () => {
+      //   console.log(`Error connecting to ${relay.url}`)
+      // })
     })
-
-    sendEventRef.current = _sendEvent
-  }, [onConnectCallback, onEventCallback, relayUrls])
+  }, [onConnectCallback, relayUrls])
 
   const value: NostrContextType = {
     isLoading,
-    sendEvent: sendEventRef.current,
     onConnect: (_onConnectCallback?: OnConnectFunc) => {
       if (_onConnectCallback) {
         onConnectCallback = _onConnectCallback
-      }
-    },
-    onEvent: (_onEventCallback?: OnEventFunc) => {
-      if (_onEventCallback) {
-        onEventCallback = _onEventCallback
       }
     },
   }
@@ -95,16 +69,16 @@ export function useNostr() {
 }
 
 export function useNostrEvents({ filter }: { filter: Filter }) {
-  const { isLoading, sendEvent, onConnect, onEvent } = useNostr()
+  const { isLoading, onConnect } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
 
-  onConnect((url, _sendEvent) => {
-    _sendEvent([SendMsgType.REQ, filter], url)
-  })
+  onConnect((relay: Relay) => {
+    const sub = relay.sub([filter], {})
 
-  onEvent((_relayUrl, event) => {
-    setEvents((_events) => {
-      return [event, ..._events]
+    sub.on("event", (event: NostrEvent) => {
+      setEvents((_events) => {
+        return [event, ..._events]
+      })
     })
   })
 
@@ -115,7 +89,5 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     isLoading,
     events: sortedEvents,
     onConnect,
-    onEvent,
-    sendEvent,
   }
 }
