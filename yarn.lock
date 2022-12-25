@@ -4622,10 +4622,10 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-nostr-tools@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/nostr-tools/-/nostr-tools-1.0.0.tgz"
-  integrity sha512-PEElBgGJVS6rCzb+ydqKDlX3ouHhin8z8R4fu00abgcjAZ+qGuIbWF2wr1+Wen5z4XOsv2e6KwmLJIU4Sj5c4A==
+nostr-tools@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.0.1.tgz#acf21758fc745674ed047e7dc219b30baf489005"
+  integrity sha512-URBNadrVq4qSmndzd4clZqubze4y/LB8cdzzen9mNwlFh3ICDdWp7TCShTbLEZQYPPSVoOe2n13l77jzcVvH/w==
   dependencies:
     "@noble/hashes" "^0.5.7"
     "@noble/secp256k1" "^1.7.0"

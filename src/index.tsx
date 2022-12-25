@@ -12,6 +12,7 @@ import { uniqBy } from "./utils"
 export { dateToUnix } from "./utils"
 
 type OnConnectFunc = (relay: Relay) => void
+type OnDisconnectFunc = (relay: Relay) => void
 type OnEventFunc = (event: NostrEvent) => void
 
 interface NostrContextType {
@@ -19,6 +20,7 @@ interface NostrContextType {
   debug?: boolean
   connectedRelays: Relay[]
   onConnect: (_onConnectCallback?: OnConnectFunc) => void
+  onDisconnect: (_onDisconnectCallback?: OnDisconnectFunc) => void
   publish: (event: NostrEvent) => void
 }
 
@@ -26,6 +28,7 @@ const NostrContext = createContext<NostrContextType>({
   isLoading: true,
   connectedRelays: [],
   onConnect: () => null,
+  onDisconnect: () => null,
   publish: () => null,
 })
 
@@ -59,6 +62,7 @@ export function NostrProvider({
   }
 
   let onConnectCallback: null | OnConnectFunc = null
+  let onDisconnectCallback: null | OnDisconnectFunc = null
 
   useEffect(() => {
     relayUrls.forEach(async (relayUrl) => {
@@ -74,14 +78,13 @@ export function NostrProvider({
 
       relay.on("disconnect", () => {
         log(debug, "warn", `👋 nostr: Connection closed for ${relayUrl}`)
+        onDisconnectCallback?.(relay)
         setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
       })
 
-      // Wait for this to be merged: https://github.com/fiatjaf/nostr-tools/pull/69
-      // relay.on("error", () => {
-      //   log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
-      //   console.log(`Error connecting to ${relay.url}`)
-      // })
+      relay.on("error", () => {
+        log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
+      })
     })
   }, [onConnectCallback, relayUrls])
 
@@ -93,6 +96,11 @@ export function NostrProvider({
     onConnect: (_onConnectCallback?: OnConnectFunc) => {
       if (_onConnectCallback) {
         onConnectCallback = _onConnectCallback
+      }
+    },
+    onDisconnect: (_onDisconnectCallback?: OnDisconnectFunc) => {
+      if (_onDisconnectCallback) {
+        onDisconnectCallback = _onDisconnectCallback
       }
     },
   }
@@ -116,7 +124,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
 
   const subscribe = (relay: Relay) => {
     log(debug, "info", "⬆️ nostr: Sending event filter:", filter)
-    const sub = relay.sub([filter], {})
+    const sub = relay.sub([filter])
 
     unsubscribe = sub.unsub
 
