@@ -110,9 +110,15 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
 
   let onEventCallback: null | OnEventFunc = null
 
-  onConnect((relay: Relay) => {
+  let unsubscribe = () => {
+    return
+  }
+
+  const subscribe = (relay: Relay) => {
     log(debug, "info", "⬆️ nostr: Sending event filter:", filter)
     const sub = relay.sub([filter], {})
+
+    unsubscribe = sub.unsub
 
     sub.on("event", (event: NostrEvent) => {
       log(debug, "info", "⬇️ nostr: Received event:", event)
@@ -121,6 +127,16 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
         return [event, ..._events]
       })
     })
+  }
+
+  useEffect(() => {
+    connectedRelays.forEach((relay) => {
+      subscribe(relay)
+    })
+  }, [connectedRelays.length])
+
+  onConnect((relay: Relay) => {
+    subscribe(relay)
   })
 
   const uniqEvents = events.length > 0 ? uniqBy(events, "id") : []
@@ -131,6 +147,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     events: sortedEvents,
     onConnect,
     connectedRelays,
+    unsubscribe,
     onEvent: (_onEventCallback: OnEventFunc) => {
       if (_onEventCallback) {
         onEventCallback = _onEventCallback
