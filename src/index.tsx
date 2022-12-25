@@ -9,6 +9,7 @@ import {
 import { Relay, Filter, Event as NostrEvent, relayInit } from "nostr-tools"
 
 import { uniqBy } from "./utils"
+export { dateToUnix } from "./utils"
 
 type OnConnectFunc = (relay: Relay) => void
 
@@ -17,12 +18,14 @@ interface NostrContextType {
   debug?: boolean
   connectedRelays: Relay[]
   onConnect: (_onConnectCallback?: OnConnectFunc) => void
+  publish: (event: NostrEvent) => void
 }
 
 const NostrContext = createContext<NostrContextType>({
   isLoading: true,
   connectedRelays: [],
   onConnect: () => null,
+  publish: () => null,
 })
 
 const log = (
@@ -33,8 +36,6 @@ const log = (
   if (!isOn) return
   console[type](...args)
 }
-
-// TODO: add "send"
 
 export function NostrProvider({
   children,
@@ -47,6 +48,12 @@ export function NostrProvider({
 }) {
   const [isLoading, setIsLoading] = useState(true)
   const [connectedRelays, setConnectedRelays] = useState<Relay[]>([])
+
+  const publish = (event: NostrEvent) => {
+    return connectedRelays.map((relay) => {
+      return relay.publish(event)
+    })
+  }
 
   let onConnectCallback: null | OnConnectFunc = null
 
@@ -62,6 +69,11 @@ export function NostrProvider({
         setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
       })
 
+      relay.on("disconnect", () => {
+        log(debug, "warn", `👋 nostr: Connection closed for ${relayUrl}`)
+        setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+      })
+
       // Wait for this to be merged: https://github.com/fiatjaf/nostr-tools/pull/69
       // relay.on("error", () => {
       //   log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
@@ -74,6 +86,7 @@ export function NostrProvider({
     debug,
     isLoading,
     connectedRelays,
+    publish,
     onConnect: (_onConnectCallback?: OnConnectFunc) => {
       if (_onConnectCallback) {
         onConnectCallback = _onConnectCallback

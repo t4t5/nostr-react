@@ -1,5 +1,5 @@
 <p align="center">
-<b>react-nostr</b>
+<b>nostr-react</b>
 </p>
 <p align="center">
 React Hooks for Nostr ✨
@@ -8,7 +8,7 @@ React Hooks for Nostr ✨
 ## Installation
 
 ```
-npm install @nostrgg/react
+npm install nostr-react
 ```
 
 ## Example usage:
@@ -16,7 +16,7 @@ npm install @nostrgg/react
 Wrap your app in the NostrProvider:
 
 ```tsx
-import { NostrProvider } from "@nostrgg/react";
+import { NostrProvider } from "nostr-react";
 
 const relayUrls = [
   "wss://nostr-pub.wellorder.net",
@@ -37,12 +37,12 @@ You can now use the `useNostr` and `useNostrEvents` hooks in your components!
 **Fetching all `text_note` events starting now:**
 
 ```tsx
-import { Kind, useNostrEvents, dateToUnix } from "@nostrgg/react";
+import { useNostrEvents, dateToUnix } from "nostr-react";
 
 const GlobalFeed = () => {
   const { isLoading, events } = useNostrEvents({
     filter: {
-      kinds: [Kind.TextNote],
+      kinds: [1],
       since: dateToUnix(new Date()), // all new events from now
     },
   });
@@ -60,7 +60,7 @@ const GlobalFeed = () => {
 **Fetching all `text_note` events from a specific user, since the beginning of time:**
 
 ```tsx
-import { Kind, useNostrEvents, dateToUnix } from "@nostrgg/react";
+import { useNostrEvents, dateToUnix } from "nostr-react";
 
 const ProfileFeed = () => {
   const { events } = useNostrEvents({
@@ -69,7 +69,7 @@ const ProfileFeed = () => {
         "9c2a6495b4e3de93f3e1cc254abe4078e17c64e5771abc676a5e205b62b1286c",
       ],
       since: 0,
-      kinds: [Kind.TextNote],
+      kinds: [1],
     },
   });
 
@@ -87,32 +87,46 @@ const ProfileFeed = () => {
 
 ```tsx
 import {
-  generateSignedEvent,
-  Kind,
-  SendMsgType,
   useNostr,
 } from "@nostrgg/react";
 
+import {
+  type Event as NostrEvent,
+  getEventHash,
+  getPublicKey,
+  signEvent,
+} from "nostr-tools";
+
 export default function PostButton() {
-  const { sendEvent } = useNostr();
+  const { publish } = useNostr();
 
   const onPost = async () => {
-    const privKey = prompt("Paste your private key here:");
+    const privKey = prompt("Paste your private key:");
 
     if (!privKey) {
       alert("no private key provided");
       return;
     }
 
-    const event = {
-      content: "Hello world!",
-      kind: Kind.TextNote,
+    const message = prompt("Enter the message you want to send:");
+
+    if (!message) {
+      alert("no message provided");
+      return;
+    }
+
+    const event: NostrEvent = {
+      content: message,
+      kind: 1,
       tags: [],
+      created_at: Math.floor(Date.now() / 1000),
+      pubkey: getPublicKey(privKey),
     };
 
-    const signedEvent = await generateSignedEvent(event, privKey);
+    event.id = getEventHash(event);
+    event.sig = signEvent(event, privKey);
 
-    sendEvent?.([SendMsgType.EVENT, signedEvent]);
+    publish(event);
   };
 
   return (
