@@ -40,12 +40,19 @@ You can now use the `useNostr` and `useNostrEvents` hooks in your components!
 import { useNostrEvents, dateToUnix } from "nostr-react";
 
 const GlobalFeed = () => {
-  const { isLoading, events } = useNostrEvents({
+  const { events, unsubscribe } = useNostrEvents({
     filter: {
       kinds: [1],
       since: dateToUnix(new Date()), // all new events from now
     },
   });
+
+  useEffect(() => {
+    // Stop subscribing when component unmounts:
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <>
@@ -63,7 +70,7 @@ const GlobalFeed = () => {
 import { useNostrEvents } from "nostr-react";
 
 const ProfileFeed = () => {
-  const { events } = useNostrEvents({
+  const { events, unsubscribe } = useNostrEvents({
     filter: {
       authors: [
         "9c2a6495b4e3de93f3e1cc254abe4078e17c64e5771abc676a5e205b62b1286c",
@@ -72,6 +79,13 @@ const ProfileFeed = () => {
       kinds: [1],
     },
   });
+
+  useEffect(() => {
+    // Stop subscribing when component unmounts:
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <>
