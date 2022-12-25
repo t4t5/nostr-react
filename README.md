@@ -60,7 +60,7 @@ const GlobalFeed = () => {
 **Fetching all `text_note` events from a specific user, since the beginning of time:**
 
 ```tsx
-import { useNostrEvents, dateToUnix } from "nostr-react";
+import { useNostrEvents } from "nostr-react";
 
 const ProfileFeed = () => {
   const { events } = useNostrEvents({
@@ -86,7 +86,7 @@ const ProfileFeed = () => {
 **Post a message:**
 
 ```tsx
-import { useNostr } from "nostr-react";
+import { useNostr, dateToUnix } from "nostr-react";
 
 import {
   type Event as NostrEvent,
@@ -117,7 +117,7 @@ export default function PostButton() {
       content: message,
       kind: 1,
       tags: [],
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: dateToUnix(),
       pubkey: getPublicKey(privKey),
     };
 
