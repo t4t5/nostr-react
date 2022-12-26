@@ -123,6 +123,9 @@ export function useNostr() {
 export function useNostrEvents({ filter }: { filter: Filter }) {
   const { isLoading, onConnect, debug, connectedRelays } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
+  const [unsubscribe, setUnsubscribe] = useState(() => {
+    return
+  })
 
   let onEventCallback: null | OnEventFunc = null
 
@@ -130,18 +133,16 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   const filterBase64 =
     typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
 
-  let unsubscribe = () => {
-    return
-  }
-
   const subscribe = (relay: Relay) => {
     log(debug, "info", "⬆️ nostr: Subscribing to filter:", filter)
     const sub = relay.sub([filter])
 
-    unsubscribe = () => {
-      log(debug, "info", "✌️ nostr: Unsubscribing from filter:", filter)
+    const unsubscribeFunc = () => {
+      log(debug, "info", "🚪 nostr: Unsubscribing from filter:", filter)
       return sub.unsub()
     }
+
+    setUnsubscribe(() => unsubscribeFunc)
 
     sub.on("event", (event: NostrEvent) => {
       log(debug, "info", "⬇️ nostr: Received event:", event)
