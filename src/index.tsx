@@ -65,11 +65,15 @@ export function NostrProvider({
   let onDisconnectCallback: null | OnDisconnectFunc = null
 
   useEffect(() => {
+    let ignore = false // For React StrictMode
+
     relayUrls.forEach(async (relayUrl) => {
       const relay = relayInit(relayUrl)
       relay.connect()
 
       relay.on("connect", () => {
+        if (ignore) return
+
         log(debug, "info", `✅ nostr: Connected to ${relayUrl}`)
         setIsLoading(false)
         onConnectCallback?.(relay)
@@ -77,7 +81,7 @@ export function NostrProvider({
       })
 
       relay.on("disconnect", () => {
-        log(debug, "warn", `👋 nostr: Connection closed for ${relayUrl}`)
+        log(debug, "warn", `🚪 nostr: Connection closed for ${relayUrl}`)
         onDisconnectCallback?.(relay)
         setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
       })
@@ -86,7 +90,11 @@ export function NostrProvider({
         log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
       })
     })
-  }, [onConnectCallback, relayUrls])
+
+    return () => {
+      ignore = true
+    }
+  }, [])
 
   const value: NostrContextType = {
     debug,
@@ -118,15 +126,22 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
 
   let onEventCallback: null | OnEventFunc = null
 
+  // Lets us set filterBase64 as a useEffect dependency
+  const filterBase64 =
+    typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
+
   let unsubscribe = () => {
     return
   }
 
   const subscribe = (relay: Relay) => {
-    log(debug, "info", "⬆️ nostr: Sending event filter:", filter)
+    log(debug, "info", "⬆️ nostr: Subscribing to filter:", filter)
     const sub = relay.sub([filter])
 
-    unsubscribe = sub.unsub
+    unsubscribe = () => {
+      log(debug, "info", "✌️ nostr: Unsubscribing from filter:", filter)
+      return sub.unsub()
+    }
 
     sub.on("event", (event: NostrEvent) => {
       log(debug, "info", "⬇️ nostr: Received event:", event)
@@ -141,11 +156,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     connectedRelays.forEach((relay) => {
       subscribe(relay)
     })
-  }, [connectedRelays.length])
-
-  onConnect((relay: Relay) => {
-    subscribe(relay)
-  })
+  }, [connectedRelays, filterBase64])
 
   const uniqEvents = events.length > 0 ? uniqBy(events, "id") : []
   const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
