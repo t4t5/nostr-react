@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react"
 
@@ -54,27 +55,17 @@ export function NostrProvider({
   const [isLoading, setIsLoading] = useState(true)
   const [connectedRelays, setConnectedRelays] = useState<Relay[]>([])
 
-  const publish = (event: NostrEvent) => {
-    log(debug, "info", "⬆️ nostr: Sending event:", event)
-
-    return connectedRelays.map((relay) => {
-      return relay.publish(event)
-    })
-  }
-
   let onConnectCallback: null | OnConnectFunc = null
   let onDisconnectCallback: null | OnDisconnectFunc = null
 
-  useEffect(() => {
-    let ignore = false // For React StrictMode
+  const isFirstRender = useRef(true)
 
+  const connectToRelays = useCallback(() => {
     relayUrls.forEach(async (relayUrl) => {
       const relay = relayInit(relayUrl)
       relay.connect()
 
       relay.on("connect", () => {
-        if (ignore) return
-
         log(debug, "info", `✅ nostr: Connected to ${relayUrl}`)
         setIsLoading(false)
         onConnectCallback?.(relay)
@@ -91,11 +82,23 @@ export function NostrProvider({
         log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
       })
     })
+  }, [])
 
-    return () => {
-      ignore = true
+  useEffect(() => {
+    // Make sure we only start the relays once (even in strict-mode)
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      connectToRelays()
     }
   }, [])
+
+  const publish = (event: NostrEvent) => {
+    log(debug, "info", "⬆️ nostr: Sending event:", event)
+
+    return connectedRelays.map((relay) => {
+      return relay.publish(event)
+    })
+  }
 
   const value: NostrContextType = {
     debug,
