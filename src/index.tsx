@@ -66,20 +66,20 @@ export function NostrProvider({
       relay.connect()
 
       relay.on("connect", () => {
-        log(debug, "info", `✅ nostr: Connected to ${relayUrl}`)
+        log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
         setIsLoading(false)
         onConnectCallback?.(relay)
         setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
       })
 
       relay.on("disconnect", () => {
-        log(debug, "warn", `🚪 nostr: Connection closed for ${relayUrl}`)
+        log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
         onDisconnectCallback?.(relay)
         setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
       })
 
       relay.on("error", () => {
-        log(debug, "error", `❌ nostr: Error connecting to ${relayUrl}!`)
+        log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
       })
     })
   }, [])
@@ -93,9 +93,9 @@ export function NostrProvider({
   }, [])
 
   const publish = (event: NostrEvent) => {
-    log(debug, "info", "⬆️ nostr: Sending event:", event)
-
     return connectedRelays.map((relay) => {
+      log(debug, "info", `⬆️ nostr (${relay.url}): Sending event:`, event)
+
       return relay.publish(event)
     })
   }
@@ -137,23 +137,33 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   const filterBase64 =
     typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
 
-  const _unsubscribe = (sub: Sub) => {
-    log(debug, "info", "🙉 nostr: Unsubscribing from filter:", filter)
+  const _unsubscribe = (sub: Sub, relay: Relay) => {
+    log(
+      debug,
+      "info",
+      `🙉 nostr (${relay.url}): Unsubscribing from filter:`,
+      filter,
+    )
     return sub.unsub()
   }
 
   const subscribe = useCallback((relay: Relay) => {
-    log(debug, "info", "👂 nostr: Subscribing to filter:", filter)
+    log(
+      debug,
+      "info",
+      `👂 nostr (${relay.url}): Subscribing to filter:`,
+      filter,
+    )
     const sub = relay.sub([filter])
 
     const unsubscribeFunc = () => {
-      _unsubscribe(sub)
+      _unsubscribe(sub, relay)
     }
 
     setUnsubscribe(() => unsubscribeFunc)
 
     sub.on("event", (event: NostrEvent) => {
-      log(debug, "info", "⬇️ nostr: Received event:", event)
+      log(debug, "info", `⬇️ nostr (${relay.url}): Received event:`, event)
       onEventCallback?.(event)
       setEvents((_events) => {
         return [event, ..._events]
@@ -164,13 +174,16 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   }, [])
 
   useEffect(() => {
-    const subs = connectedRelays.map((relay) => {
-      return subscribe(relay)
+    const relaySubs = connectedRelays.map((relay) => {
+      return {
+        sub: subscribe(relay),
+        relay,
+      }
     })
 
     return () => {
-      subs.forEach((sub) => {
-        _unsubscribe(sub)
+      relaySubs.forEach(({ sub, relay }) => {
+        _unsubscribe(sub, relay)
       })
     }
   }, [connectedRelays, filterBase64])
