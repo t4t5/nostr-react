@@ -127,7 +127,7 @@ export function useNostr() {
 export function useNostrEvents({ filter }: { filter: Filter }) {
   const { isLoading, onConnect, debug, connectedRelays } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
-  const [unsubscribe, setUnsubscribe] = useState(() => {
+  const [unsubscribe, setUnsubscribe] = useState<() => void | void>(() => {
     return
   })
 
