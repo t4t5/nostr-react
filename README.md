@@ -37,12 +37,13 @@ You can now use the `useNostr` and `useNostrEvents` hooks in your components!
 **Fetching all `text_note` events starting now:**
 
 ```tsx
+import { useRef } from "react";
 import { useNostrEvents, dateToUnix } from "nostr-react";
 
 const GlobalFeed = () => {
   const now = useRef(new Date()); // Make sure current time isn't re-rendered
 
-  const { isLoading, connectedRelays, events } = useNostrEvents({
+  const { events } = useNostrEvents({
     filter: {
       since: dateToUnix(now.current), // all new events from now
       kinds: [1],
