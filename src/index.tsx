@@ -1,12 +1,13 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from "react"
 
-import { Relay, Filter, Event as NostrEvent, relayInit } from "nostr-tools"
+import { Relay, Filter, Event as NostrEvent, relayInit, Sub } from "nostr-tools"
 
 import { uniqBy } from "./utils"
 export { dateToUnix } from "./utils"
@@ -133,13 +134,17 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   const filterBase64 =
     typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
 
-  const subscribe = (relay: Relay) => {
-    log(debug, "info", "⬆️ nostr: Subscribing to filter:", filter)
+  const _unsubscribe = (sub: Sub) => {
+    log(debug, "info", "🙉 nostr: Unsubscribing from filter:", filter)
+    return sub.unsub()
+  }
+
+  const subscribe = useCallback((relay: Relay) => {
+    log(debug, "info", "👂 nostr: Subscribing to filter:", filter)
     const sub = relay.sub([filter])
 
     const unsubscribeFunc = () => {
-      log(debug, "info", "🚪 nostr: Unsubscribing from filter:", filter)
-      return sub.unsub()
+      _unsubscribe(sub)
     }
 
     setUnsubscribe(() => unsubscribeFunc)
@@ -151,12 +156,20 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
         return [event, ..._events]
       })
     })
-  }
+
+    return sub
+  }, [])
 
   useEffect(() => {
-    connectedRelays.forEach((relay) => {
-      subscribe(relay)
+    const subs = connectedRelays.map((relay) => {
+      return subscribe(relay)
     })
+
+    return () => {
+      subs.forEach((sub) => {
+        _unsubscribe(sub)
+      })
+    }
   }, [connectedRelays, filterBase64])
 
   const uniqEvents = events.length > 0 ? uniqBy(events, "id") : []
