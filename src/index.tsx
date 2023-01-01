@@ -16,6 +16,7 @@ export { dateToUnix } from "./utils"
 type OnConnectFunc = (relay: Relay) => void
 type OnDisconnectFunc = (relay: Relay) => void
 type OnEventFunc = (event: NostrEvent) => void
+type OnSubscribeFunc = (sub: Sub, relay: Relay) => void
 
 interface NostrContextType {
   isLoading: boolean
@@ -138,6 +139,7 @@ export function useNostrEvents({
   })
 
   let onEventCallback: null | OnEventFunc = null
+  let onSubscribeCallback: null | OnSubscribeFunc = null
 
   // Lets us detect changes in the nested filter object for the useEffect hook
   const filterBase64 =
@@ -183,8 +185,12 @@ export function useNostrEvents({
     if (!enabled) return
 
     const relaySubs = connectedRelays.map((relay) => {
+      const sub = subscribe(relay, filter)
+
+      onSubscribeCallback?.(sub, relay)
+
       return {
-        sub: subscribe(relay, filter),
+        sub,
         relay,
       }
     })
@@ -205,6 +211,11 @@ export function useNostrEvents({
     onConnect,
     connectedRelays,
     unsubscribe,
+    onSubscribe: (_onSubscribeCallback: OnSubscribeFunc) => {
+      if (_onSubscribeCallback) {
+        onSubscribeCallback = _onSubscribeCallback
+      }
+    },
     onEvent: (_onEventCallback: OnEventFunc) => {
       if (_onEventCallback) {
         onEventCallback = _onEventCallback
