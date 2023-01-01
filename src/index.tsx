@@ -124,7 +124,13 @@ export function useNostr() {
   return useContext(NostrContext)
 }
 
-export function useNostrEvents({ filter }: { filter: Filter }) {
+export function useNostrEvents({
+  filter,
+  enabled = true,
+}: {
+  filter: Filter
+  enabled?: boolean
+}) {
   const { isLoading, onConnect, debug, connectedRelays } = useNostr()
   const [events, setEvents] = useState<NostrEvent[]>([])
   const [unsubscribe, setUnsubscribe] = useState<() => void | void>(() => {
@@ -133,7 +139,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
 
   let onEventCallback: null | OnEventFunc = null
 
-  // Lets us set filterBase64 as a useEffect dependency
+  // Lets us detect changes in the nested filter object for the useEffect hook
   const filterBase64 =
     typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
 
@@ -147,7 +153,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
     return sub.unsub()
   }
 
-  const subscribe = useCallback((relay: Relay) => {
+  const subscribe = useCallback((relay: Relay, filter: Filter) => {
     log(
       debug,
       "info",
@@ -174,9 +180,11 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
   }, [])
 
   useEffect(() => {
+    if (!enabled) return
+
     const relaySubs = connectedRelays.map((relay) => {
       return {
-        sub: subscribe(relay),
+        sub: subscribe(relay, filter),
         relay,
       }
     })
@@ -186,7 +194,7 @@ export function useNostrEvents({ filter }: { filter: Filter }) {
         _unsubscribe(sub, relay)
       })
     }
-  }, [connectedRelays, filterBase64])
+  }, [connectedRelays, filterBase64, enabled])
 
   const uniqEvents = events.length > 0 ? uniqBy(events, "id") : []
   const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
