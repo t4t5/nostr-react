@@ -68,6 +68,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
+    "jotai": "^1.12.1",
     "nostr-tools": "^1.1.0"
   }
 }
