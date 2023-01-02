@@ -100,9 +100,9 @@ const Profile = () => {
 
   return (
     <>
-      <p>Name: userData?.name</p>
-      <p>Public key: userData?.npub</p>
-      <p>Picture URL: userData?.avatarUrl</p>
+      <p>Name: {userData?.name}</p>
+      <p>Public key: {userData?.npub}</p>
+      <p>Picture URL: {userData?.picture}</p>
     </>
   )
 }
