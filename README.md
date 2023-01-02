@@ -91,8 +91,10 @@ const ProfileFeed = () => {
 Use the `useProfile` hook to render user profiles. You can use this in multiple components at once (for example, rendering a name and avatar for each message in a chat), the hook will automatically use *batching* to prevent errors where a client sends too many requests at once. 🎉
 
 ```tsx
+import { useProfile } from "nostr-react";
+
 const Profile = () => {
-  const userData = useProfile({
+  const { data: userData } = useProfile({
     pubkey,
   });
 

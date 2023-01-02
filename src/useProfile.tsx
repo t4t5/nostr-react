@@ -105,7 +105,11 @@ export function useProfile({ pubkey }: { pubkey: string }) {
   const npub = nip19.npubEncode(pubkey)
 
   return {
-    ...metadata,
-    npub,
+    data: metadata
+      ? {
+          ...metadata,
+          npub,
+        }
+      : undefined,
   }
 }
