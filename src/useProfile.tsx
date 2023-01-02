@@ -49,8 +49,6 @@ function useProfileQueue({ pubkey }: { pubkey: string }) {
         return !requestedPubkeys.includes(_pubkey)
       })
 
-      console.log("ARR", arr)
-
       return arr
     })
   }, [pubkey, setQueuedPubkeys, alreadyRequested, requestedPubkeys])
