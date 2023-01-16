@@ -16,7 +16,7 @@ import { uniqBy } from "./utils"
 type OnConnectFunc = (relay: Relay) => void
 type OnDisconnectFunc = (relay: Relay) => void
 type OnEventFunc = (event: NostrEvent) => void
-type OnReadyFunc = () => void
+type OnDoneFunc = () => void
 type OnSubscribeFunc = (sub: Sub, relay: Relay) => void
 
 interface NostrContextType {
@@ -141,7 +141,7 @@ export function useNostrEvents({
 
   let onEventCallback: null | OnEventFunc = null
   let onSubscribeCallback: null | OnSubscribeFunc = null
-  let onReadyCallback: null | OnReadyFunc = null
+  let onDoneCallback: null | OnDoneFunc = null
 
   // Lets us detect changes in the nested filter object for the useEffect hook
   const filterBase64 =
@@ -181,7 +181,7 @@ export function useNostrEvents({
     })
     
     sub.on("eose", () => {
-      onReadyCallback?.()
+      OnDoneCallback?.()
     })
 
     return sub
@@ -227,9 +227,9 @@ export function useNostrEvents({
         onEventCallback = _onEventCallback
       }
     },
-    onReady: (_onReadyCallback: OnReadyFunc) => {
-      if (_onReadyCallback) {
-        onReadyCallback = _onReadyCallback
+    onDone: (_onDoneCallback: OnDoneFunc) => {
+      if (_onDoneCallback) {
+        onDoneCallback = _onDoneCallback
       }
     },
   }
