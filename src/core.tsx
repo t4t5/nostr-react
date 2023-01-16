@@ -181,7 +181,7 @@ export function useNostrEvents({
     })
     
     sub.on("eose", () => {
-      OnDoneCallback?.()
+      onDoneCallback?.()
     })
 
     return sub
