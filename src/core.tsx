@@ -62,7 +62,7 @@ export function NostrProvider({
 
   const isFirstRender = useRef(true)
 
-  const connectToRelay = async (relayUrl) => {
+  const connectToRelay = async (relayUrl:string) => {
     log(debug, "info", `🚧 initiating connection to (${relayUrl}) ...`)
     const relay = relayInit(relayUrl)
     relay.connect()
