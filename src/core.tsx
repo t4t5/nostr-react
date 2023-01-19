@@ -81,6 +81,7 @@ export function NostrProvider({
       log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
       onDisconnectCallback?.(relay)
       setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+      if (autoReconnect) { connectToRelay(relayUrl); }
     })
 
     relay.on("error", () => {
@@ -112,7 +113,6 @@ export function NostrProvider({
 
   const value: NostrContextType = {
     debug,
-    autoReconnect,
     isLoading,
     connectedRelays,
     publish,
@@ -122,7 +122,6 @@ export function NostrProvider({
       }
     },
     onDisconnect: (_onDisconnectCallback?: OnDisconnectFunc) => {
-      if (autoReconnect) { connectToRelay(relayUrl); }
       if (_onDisconnectCallback) {
         onDisconnectCallback = _onDisconnectCallback
       }
