@@ -62,27 +62,32 @@ export function NostrProvider({
 
   const isFirstRender = useRef(true)
 
+  const connectToRelay = async (relayUrl) => {
+    log(debug, "info", `🚧 initiating connection to (${relayUrl}) ...`)
+    const relay = relayInit(relayUrl)
+    relay.connect()
+
+    relay.on("connect", () => {
+      log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
+      setIsLoading(false)
+      onConnectCallback?.(relay)
+      setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
+    })
+
+    relay.on("disconnect", () => {
+      log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
+      onDisconnectCallback?.(relay)
+      setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+    })
+
+    relay.on("error", () => {
+      log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
+    })
+  }
+
   const connectToRelays = useCallback(() => {
     relayUrls.forEach(async (relayUrl) => {
-      const relay = relayInit(relayUrl)
-      relay.connect()
-
-      relay.on("connect", () => {
-        log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
-        setIsLoading(false)
-        onConnectCallback?.(relay)
-        setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
-      })
-
-      relay.on("disconnect", () => {
-        log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
-        onDisconnectCallback?.(relay)
-        setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
-      })
-
-      relay.on("error", () => {
-        log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
-      })
+      await connectToRelay(relayUrl: string)
     })
   }, [])
 
