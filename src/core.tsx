@@ -22,6 +22,7 @@ type OnSubscribeFunc = (sub: Sub, relay: Relay) => void
 interface NostrContextType {
   isLoading: boolean
   debug?: boolean
+  autoReconnect?: boolean
   connectedRelays: Relay[]
   onConnect: (_onConnectCallback?: OnConnectFunc) => void
   onDisconnect: (_onDisconnectCallback?: OnDisconnectFunc) => void
@@ -49,10 +50,12 @@ export function NostrProvider({
   children,
   relayUrls,
   debug,
+  autoReconnect,
 }: {
   children: ReactNode
   relayUrls: string[]
   debug?: boolean
+  autoReconnect?: boolean
 }) {
   const [isLoading, setIsLoading] = useState(true)
   const [connectedRelays, setConnectedRelays] = useState<Relay[]>([])
@@ -78,6 +81,7 @@ export function NostrProvider({
       log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
       onDisconnectCallback?.(relay)
       setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+      if (autoReconnect) { reconnectToRelays(relayUrl); }
     })
 
     relay.on("error", () => {
