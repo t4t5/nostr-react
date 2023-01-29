@@ -132,7 +132,13 @@ export function useNostrEvents({
   filter: Filter
   enabled?: boolean
 }) {
-  const { isLoading, onConnect, debug, connectedRelays } = useNostr()
+  const {
+    isLoading: _isLoadingProvider,
+    onConnect,
+    debug,
+    connectedRelays,
+  } = useNostr()
+  const [isLoading, setIsLoading] = useState(_isLoadingProvider)
   const [events, setEvents] = useState<NostrEvent[]>([])
   const [unsubscribe, setUnsubscribe] = useState<() => void | void>(() => {
     return
@@ -165,6 +171,8 @@ export function useNostrEvents({
     )
     const sub = relay.sub([filter])
 
+    setIsLoading(true)
+
     const unsubscribeFunc = () => {
       _unsubscribe(sub, relay)
     }
@@ -178,8 +186,9 @@ export function useNostrEvents({
         return [event, ..._events]
       })
     })
-    
+
     sub.on("eose", () => {
+      setIsLoading(false)
       onDoneCallback?.()
     })
 

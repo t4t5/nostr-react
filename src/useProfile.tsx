@@ -65,7 +65,7 @@ export function useProfile({ pubkey }: { pubkey: string }) {
 
   const [fetchedProfiles, setFetchedProfiles] = useAtom(fetchedProfilesAtom)
 
-  const { onEvent, onSubscribe } = useNostrEvents({
+  const { onEvent, onSubscribe, isLoading } = useNostrEvents({
     filter: {
       kinds: [0],
       authors: pubkeysToFetch,
@@ -103,6 +103,7 @@ export function useProfile({ pubkey }: { pubkey: string }) {
   const npub = nip19.npubEncode(pubkey)
 
   return {
+    isLoading,
     data: metadata
       ? {
           ...metadata,
