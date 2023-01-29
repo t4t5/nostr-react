@@ -133,12 +133,13 @@ export function useNostrEvents({
   enabled?: boolean
 }) {
   const {
-    isLoading: _isLoadingProvider,
+    isLoading: isLoadingProvider,
     onConnect,
     debug,
     connectedRelays,
   } = useNostr()
-  const [isLoading, setIsLoading] = useState(_isLoadingProvider)
+
+  const [isLoading, setIsLoading] = useState(true)
   const [events, setEvents] = useState<NostrEvent[]>([])
   const [unsubscribe, setUnsubscribe] = useState<() => void | void>(() => {
     return
@@ -220,7 +221,7 @@ export function useNostrEvents({
   const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
 
   return {
-    isLoading,
+    isLoading: isLoading || isLoadingProvider,
     events: sortedEvents,
     onConnect,
     connectedRelays,
