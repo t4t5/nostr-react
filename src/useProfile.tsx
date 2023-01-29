@@ -7,13 +7,15 @@ import { uniqValues } from "./utils"
 
 interface Metadata {
   name?: string
+  username?: string
   display_name?: string
   picture?: string
+  banner?: string
   about?: string
   website?: string
   lud06?: string
   lud16?: string
-  nip06?: string
+  nip05?: string
 }
 
 const QUEUE_DEBOUNCE_DURATION = 100
