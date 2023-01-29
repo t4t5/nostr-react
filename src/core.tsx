@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react"
-import { Provider as JotaiProvider } from "jotai"
 
 import { Relay, Filter, Event as NostrEvent, relayInit, Sub } from "nostr-tools"
 
