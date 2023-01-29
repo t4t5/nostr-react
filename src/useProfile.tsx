@@ -58,14 +58,20 @@ function useProfileQueue({ pubkey }: { pubkey: string }) {
   }
 }
 
-export function useProfile({ pubkey }: { pubkey: string }) {
+export function useProfile({
+  pubkey,
+  enabled: _enabled = true,
+}: {
+  pubkey: string
+  enabled?: boolean
+}) {
   const [, setRequestedPubkeys] = useAtom(requestedPubkeysAtom)
   const { pubkeysToFetch } = useProfileQueue({ pubkey })
-  const enabled = !!pubkeysToFetch.length
+  const enabled = _enabled && !!pubkeysToFetch.length
 
   const [fetchedProfiles, setFetchedProfiles] = useAtom(fetchedProfilesAtom)
 
-  const { onEvent, onSubscribe, isLoading } = useNostrEvents({
+  const { onEvent, onSubscribe, isLoading, onDone } = useNostrEvents({
     filter: {
       kinds: [0],
       authors: pubkeysToFetch,
@@ -104,6 +110,7 @@ export function useProfile({ pubkey }: { pubkey: string }) {
 
   return {
     isLoading,
+    onDone,
     data: metadata
       ? {
           ...metadata,
