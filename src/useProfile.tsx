@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { useNostrEvents } from "./core"
 import { uniqValues } from "./utils"
 
-interface Metadata {
+export interface Metadata {
   name?: string
   username?: string
   display_name?: string
