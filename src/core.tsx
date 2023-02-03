@@ -68,11 +68,7 @@ export function NostrProvider({
   const connectToRelay = async (relayUrl:string) => {
     log(debug, "info", `🚧 initiating connection to (${relayUrl}) ...`)
     const relay = relayInit(relayUrl)
-    try {
-      relay.connect()
-    } catch(err) {
-      console.log(err) 
-    }
+    relay.connect()
 
     relay.on("connect", () => {
       log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
