@@ -71,7 +71,7 @@ export function NostrProvider({
     try {
       relay.connect()
     } catch(err) {
-      console.log(er) 
+      console.log(err) 
     }
 
     relay.on("connect", () => {
