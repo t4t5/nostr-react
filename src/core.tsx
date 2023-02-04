@@ -58,40 +58,52 @@ export function NostrProvider({
 
   let onConnectCallback: null | OnConnectFunc = null
   let onDisconnectCallback: null | OnDisconnectFunc = null
-
-  const isFirstRender = useRef(true)
+  
+  const aConnectedRelays: string[] = [];
+  connectedRelays.forEach( (obj:Relay) => {
+    aConnectedRelays.push(obj.url)
+  })
 
   const connectToRelays = useCallback(() => {
+    aConnectedRelays.forEach(async (relayUrl) => {
+      if (!relayUrls.includes(relayUrl)) {
+        // need to close connection to relayUrl but not sure how to do this 
+        // something like: relay.close()
+        log(debug, "info", `❗ need to close connection to (${relayUrl}) which has been removed from the list of desired relays!`)
+      }
+    });
     relayUrls.forEach(async (relayUrl) => {
-      const relay = relayInit(relayUrl)
-      relay.connect()
+      // make sure not to connect to relay if already connected
+      if (aConnectedRelays.includes(relayUrl)) {
+        log(debug, "info", `✅ no need to reconnect to (${relayUrl}) because it is already connected!`)
+      }
+      if (!aConnectedRelays.includes(relayUrl)) {
+        const relay = relayInit(relayUrl)
+        relay.connect()
 
-      relay.on("connect", () => {
-        log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
-        setIsLoading(false)
-        onConnectCallback?.(relay)
-        setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
-      })
+        relay.on("connect", () => {
+          log(debug, "info", `✅ nostr (${relayUrl}): Connected!`)
+          setIsLoading(false)
+          onConnectCallback?.(relay)
+          setConnectedRelays((prev) => uniqBy([...prev, relay], "url"))
+        })
 
-      relay.on("disconnect", () => {
-        log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
-        onDisconnectCallback?.(relay)
-        setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
-      })
+        relay.on("disconnect", () => {
+          log(debug, "warn", `🚪 nostr (${relayUrl}): Connection closed.`)
+          onDisconnectCallback?.(relay)
+          setConnectedRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+        })
 
-      relay.on("error", () => {
-        log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
-      })
+        relay.on("error", () => {
+          log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
+        })
+      }
     })
-  }, [])
+  }, [relayUrls])
 
   useEffect(() => {
-    // Make sure we only start the relays once (even in strict-mode)
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      connectToRelays()
-    }
-  }, [])
+    connectToRelays()
+  }, [relayUrls])
 
   const publish = (event: NostrEvent) => {
     return connectedRelays.map((relay) => {
