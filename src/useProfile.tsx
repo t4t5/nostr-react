@@ -5,15 +5,17 @@ import { useEffect, useState } from "react"
 import { useNostrEvents } from "./core"
 import { uniqValues } from "./utils"
 
-interface Metadata {
+export interface Metadata {
   name?: string
+  username?: string
   display_name?: string
   picture?: string
+  banner?: string
   about?: string
   website?: string
   lud06?: string
   lud16?: string
-  nip06?: string
+  nip05?: string
 }
 
 const QUEUE_DEBOUNCE_DURATION = 100
@@ -58,14 +60,20 @@ function useProfileQueue({ pubkey }: { pubkey: string }) {
   }
 }
 
-export function useProfile({ pubkey }: { pubkey: string }) {
+export function useProfile({
+  pubkey,
+  enabled: _enabled = true,
+}: {
+  pubkey: string
+  enabled?: boolean
+}) {
   const [, setRequestedPubkeys] = useAtom(requestedPubkeysAtom)
   const { pubkeysToFetch } = useProfileQueue({ pubkey })
-  const enabled = !!pubkeysToFetch.length
+  const enabled = _enabled && !!pubkeysToFetch.length
 
   const [fetchedProfiles, setFetchedProfiles] = useAtom(fetchedProfilesAtom)
 
-  const { onEvent, onSubscribe } = useNostrEvents({
+  const { onEvent, onSubscribe, isLoading, onDone } = useNostrEvents({
     filter: {
       kinds: [0],
       authors: pubkeysToFetch,
@@ -103,6 +111,8 @@ export function useProfile({ pubkey }: { pubkey: string }) {
   const npub = nip19.npubEncode(pubkey)
 
   return {
+    isLoading,
+    onDone,
     data: metadata
       ? {
           ...metadata,

@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react"
-import { Provider as JotaiProvider } from "jotai"
 
 import { Relay, Filter, Event as NostrEvent, relayInit, Sub } from "nostr-tools"
 
@@ -142,7 +141,14 @@ export function useNostrEvents({
   filter: Filter
   enabled?: boolean
 }) {
-  const { isLoading, onConnect, debug, connectedRelays } = useNostr()
+  const {
+    isLoading: isLoadingProvider,
+    onConnect,
+    debug,
+    connectedRelays,
+  } = useNostr()
+
+  const [isLoading, setIsLoading] = useState(true)
   const [events, setEvents] = useState<NostrEvent[]>([])
   const [unsubscribe, setUnsubscribe] = useState<() => void | void>(() => {
     return
@@ -175,6 +181,8 @@ export function useNostrEvents({
     )
     const sub = relay.sub([filter])
 
+    setIsLoading(true)
+
     const unsubscribeFunc = () => {
       _unsubscribe(sub, relay)
     }
@@ -188,8 +196,9 @@ export function useNostrEvents({
         return [event, ..._events]
       })
     })
-    
+
     sub.on("eose", () => {
+      setIsLoading(false)
       onDoneCallback?.()
     })
 
@@ -221,7 +230,7 @@ export function useNostrEvents({
   const sortedEvents = uniqEvents.sort((a, b) => b.created_at - a.created_at)
 
   return {
-    isLoading,
+    isLoading: isLoading || isLoadingProvider,
     events: sortedEvents,
     onConnect,
     connectedRelays,
