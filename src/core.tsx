@@ -63,11 +63,10 @@ export function NostrProvider({
 
   const disconnectToRelays = useCallback(
     (relayUrls: string[]) => {
-      relayUrls.forEach(
-        async (relayUrl) =>
-          await relays.find((relay) => relay.url === relayUrl)?.close(),
-      )
-      setRelays([])
+      relayUrls.forEach(async (relayUrl) => {
+        await relays.find((relay) => relay.url === relayUrl)?.close()
+        setRelays((prev) => prev.filter((r) => r.url !== relayUrl))
+      })
     },
     [relays],
   )
@@ -76,6 +75,12 @@ export function NostrProvider({
     (relayUrls: string[]) => {
       relayUrls.forEach(async (relayUrl) => {
         const relay = relayInit(relayUrl)
+
+        if (connectedRelays.findIndex((r) => r.url === relayUrl) >= 0) {
+          // already connected, skip
+          return
+        }
+
         setRelays((prev) => uniqBy([...prev, relay], "url"))
         relay.connect()
 
@@ -97,7 +102,7 @@ export function NostrProvider({
         })
       })
     },
-    [debug, onConnectCallback, onDisconnectCallback],
+    [connectedRelays, debug, onConnectCallback, onDisconnectCallback],
   )
 
   useEffect(() => {
@@ -106,7 +111,11 @@ export function NostrProvider({
       return
     }
 
-    disconnectToRelays(relayUrlsRef.current)
+    const relayUrlsToDisconnect = relayUrlsRef.current.filter(
+      (relayUrl) => !relayUrls.includes(relayUrl),
+    )
+
+    disconnectToRelays(relayUrlsToDisconnect)
     connectToRelays(relayUrls)
 
     relayUrlsRef.current = relayUrls
