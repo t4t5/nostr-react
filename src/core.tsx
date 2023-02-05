@@ -83,7 +83,7 @@ export function NostrProvider({
         log(debug, "error", `❌ nostr (${relayUrl}): Connection error!`)
       })
     })
-  }, [])
+  }, [debug, onConnectCallback, onDisconnectCallback, relayUrls])
 
   useEffect(() => {
     // Make sure we only start the relays once (even in strict-mode)
@@ -91,7 +91,7 @@ export function NostrProvider({
       isFirstRender.current = false
       connectToRelays()
     }
-  }, [])
+  }, [connectToRelays])
 
   const publish = (event: NostrEvent) => {
     return connectedRelays.map((relay) => {
