@@ -121,13 +121,16 @@ export function NostrProvider({
     relayUrlsRef.current = relayUrls
   }, [relayUrls, connectToRelays, disconnectToRelays])
 
-  const publish = (event: NostrEvent) => {
-    return connectedRelays.map((relay) => {
-      log(debug, "info", `⬆️ nostr (${relay.url}): Sending event:`, event)
+  const publish = useCallback(
+    (event: NostrEvent) => {
+      return connectedRelays.map((relay) => {
+        log(debug, "info", `⬆️ nostr (${relay.url}): Sending event:`, event)
 
-      return relay.publish(event)
-    })
-  }
+        return relay.publish(event)
+      })
+    },
+    [connectedRelays, debug],
+  )
 
   const value: NostrContextType = {
     debug,
