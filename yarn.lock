@@ -1226,19 +1226,14 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@noble/hashes@^0.5.7":
-  version "0.5.9"
-  resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-0.5.9.tgz"
-  integrity sha512-7lN1Qh6d8DUGmfN36XRsbN/WcGIPNtTGhkw26vWId/DlCIGsYJJootTtPGghTLcn/AaXPx2Q0b3cacrwXa7OVw==
+"@noble/hashes@1.2.0", "@noble/hashes@~1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.2.0.tgz#a3150eeb09cc7ab207ebf6d7b9ad311a9bdbed12"
+  integrity sha512-FZfhjEDbT5GRswV3C6uvLPHMiVD6lQBmpoX5+eSiPaMTXte/IKqI5dykDxzZB/WBeK/CDuQRBWarPdi3FNY2zQ==
 
-"@noble/hashes@~1.1.1", "@noble/hashes@~1.1.3":
-  version "1.1.5"
-  resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-1.1.5.tgz"
-  integrity sha512-LTMZiiLc+V4v1Yi16TD6aX2gmtKszNye0pQgbaLqkvhIqP7nVsSaJsWloGQjJfJ8offaoP5GtX3yY5swbcJxxQ==
-
-"@noble/secp256k1@^1.7.0", "@noble/secp256k1@~1.7.0":
+"@noble/secp256k1@1.7.0", "@noble/secp256k1@~1.7.0":
   version "1.7.0"
-  resolved "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.0.tgz#d15357f7c227e751d90aa06b05a0e5cf993ba8c1"
   integrity sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==
 
 "@nodelib/fs.scandir@2.1.5":
@@ -1327,26 +1322,26 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@scure/base@^1.1.1", "@scure/base@~1.1.0":
+"@scure/base@1.1.1", "@scure/base@~1.1.0":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@scure/base/-/base-1.1.1.tgz"
   integrity sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==
 
-"@scure/bip32@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/@scure/bip32/-/bip32-1.1.1.tgz"
-  integrity sha512-UmI+liY7np2XakaW+6lMB6HZnpczWk1yXZTxvg8TM8MdOcKHCGL1YkraGj8eAjPfMwFNiAyek2hXmS/XFbab8g==
+"@scure/bip32@1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@scure/bip32/-/bip32-1.1.4.tgz#2c91a7be0156b15f26dd0c843a06a1917f129efd"
+  integrity sha512-m925ACYK0wPELsF7Z/VdLGmKj1StIeHraPMYB9xiAFiq/PnvqWd/99I0TQ2OZhjjlMDsDJeZlyXMWi0beaA7NA==
   dependencies:
-    "@noble/hashes" "~1.1.3"
+    "@noble/hashes" "~1.2.0"
     "@noble/secp256k1" "~1.7.0"
     "@scure/base" "~1.1.0"
 
-"@scure/bip39@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@scure/bip39/-/bip39-1.1.0.tgz"
-  integrity sha512-pwrPOS16VeTKg98dYXQyIjJEcWfz7/1YJIwxUEPFfQPtc86Ym/1sVgQ2RLoD43AazMk2l/unK4ITySSpW2+82w==
+"@scure/bip39@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@scure/bip39/-/bip39-1.1.1.tgz#b54557b2e86214319405db819c4b6a370cf340c5"
+  integrity sha512-t+wDck2rVkh65Hmv280fYdVdY25J9YeEUIgn2LG1WM6gxFkGzcksoDiUkWVpVp3Oex9xGC68JU2dSbUfwZ2jPg==
   dependencies:
-    "@noble/hashes" "~1.1.1"
+    "@noble/hashes" "~1.2.0"
     "@scure/base" "~1.1.0"
 
 "@sinonjs/commons@^1.7.0":
@@ -4617,16 +4612,16 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-nostr-tools@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.1.0.tgz#f7c06a1d1a1a71b7b1feb7b0e687cef6a4e24286"
-  integrity sha512-T+Fj29ff6dn1YMMDrG03OctxrWVKeei/DZatVjgoad0tYUCiBBERk37qkpCqFAoKYVreIPl/Mxrh2DVfMzLA7g==
+nostr-tools@^1.8.3:
+  version "1.8.3"
+  resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-1.8.3.tgz#10ddb8ed5d9ca3bf6c1e8fdd1961bb6584b8e1f2"
+  integrity sha512-0giVDk0ElhqlGY032ma/8Q8NsIyFL53fCCkndFCpuLabZ2E134Kth0sbnIIIFXLqm7VnYIlgLVtCna8+dUiZUg==
   dependencies:
-    "@noble/hashes" "^0.5.7"
-    "@noble/secp256k1" "^1.7.0"
-    "@scure/base" "^1.1.1"
-    "@scure/bip32" "^1.1.1"
-    "@scure/bip39" "^1.1.0"
+    "@noble/hashes" "1.2.0"
+    "@noble/secp256k1" "1.7.0"
+    "@scure/base" "1.1.1"
+    "@scure/bip32" "1.1.4"
+    "@scure/bip39" "1.1.1"
 
 npm-run-path@^4.0.0, npm-run-path@^4.0.1:
   version "4.0.1"

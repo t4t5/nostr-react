@@ -69,6 +69,6 @@
   },
   "dependencies": {
     "jotai": "^1.12.1",
-    "nostr-tools": "^1.1.0"
+    "nostr-tools": "^1.8.3"
   }
 }
