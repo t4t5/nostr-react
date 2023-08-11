@@ -156,9 +156,15 @@ export function useNostr() {
 export function useNostrEvents({
   filter,
   enabled = true,
+  onEvent,
+  onDone,
+  onSubscribe,
 }: {
   filter: Filter
   enabled?: boolean
+  onEvent?: OnEventFunc
+  onDone?: OnDoneFunc
+  onSubscribe?: OnSubscribeFunc
 }) {
   const {
     isLoading: isLoadingProvider,
@@ -173,9 +179,11 @@ export function useNostrEvents({
     return
   })
 
-  let onEventCallback: null | OnEventFunc = null
-  let onSubscribeCallback: null | OnSubscribeFunc = null
-  let onDoneCallback: null | OnDoneFunc = null
+  const onEventCallback: OnEventFunc = useCallback(onEvent, [onEvent])
+  const onSubscribeCallback: OnSubscribeFunc = useCallback(onSubscribe, [
+    onSubscribe,
+  ])
+  const onDoneCallback: OnDoneFunc = useCallback(onDone, [onDone])
 
   // Lets us detect changes in the nested filter object for the useEffect hook
   const filterBase64 =
@@ -254,20 +262,5 @@ export function useNostrEvents({
     onConnect,
     connectedRelays,
     unsubscribe,
-    onSubscribe: (_onSubscribeCallback: OnSubscribeFunc) => {
-      if (_onSubscribeCallback) {
-        onSubscribeCallback = _onSubscribeCallback
-      }
-    },
-    onEvent: (_onEventCallback: OnEventFunc) => {
-      if (_onEventCallback) {
-        onEventCallback = _onEventCallback
-      }
-    },
-    onDone: (_onDoneCallback: OnDoneFunc) => {
-      if (_onDoneCallback) {
-        onDoneCallback = _onDoneCallback
-      }
-    },
   }
 }
