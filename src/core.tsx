@@ -9,6 +9,7 @@ import {
 } from "react"
 
 import { Relay, Filter, Event as NostrEvent, relayInit, Sub } from "nostr-tools"
+import { encode as btoa } from "base-64";
 
 import { uniqBy } from "./utils"
 
@@ -178,8 +179,7 @@ export function useNostrEvents({
   let onDoneCallback: null | OnDoneFunc = null
 
   // Lets us detect changes in the nested filter object for the useEffect hook
-  const filterBase64 =
-    typeof window !== "undefined" ? window.btoa(JSON.stringify(filter)) : null
+  const filterBase64 = btoa(JSON.stringify(filter))
 
   const _unsubscribe = (sub: Sub, relay: Relay) => {
     log(
